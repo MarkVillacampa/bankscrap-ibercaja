@@ -90,15 +90,16 @@ module Bankscrap
 
       # Build a transaction object from API data
       def build_transaction(data, account)
-        amount = Money.new(data['Importe'] || 0, 'EUR')
+        amount = Money.new((data['Importe'] || 0) * 100, 'EUR')
+        # There is no unique id in the json, so we MD5 some data to create one
+        id = Digest::MD5.hexdigest("#{account.id}#{data['FechaValor']}#{data['Importe']}#{data['Saldo']}#{data['NumeroDocumento']}")
         Transaction.new(
           account: account,
-          # There is no unique id in the json, so we MD5 the json to create one
-          id: Digest::MD5.hexdigest(data.to_json),
+          id: id,
           amount: amount,
           effective_date: Date.parse(data['FechaValor']),
           description: data['ConceptoMovimiento'] + ' ' + data['Registros'].join(' '),
-          balance: Money.new(data['saldo'] || 0, 'EUR'),
+          balance: Money.new(data['Saldo'] || 0, 'EUR'),
         )
       end
     end
