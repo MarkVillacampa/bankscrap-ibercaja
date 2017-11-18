@@ -100,6 +100,7 @@ module Bankscrap
           effective_date: Date.parse(data['FechaValor']),
           description: data['ConceptoMovimiento'] + ' ' + data['Registros'].join(' '),
           balance: Money.new(data['Saldo'] || 0, 'EUR'),
+          category_id: data['CodigoConcepto'],
         )
       end
     end
